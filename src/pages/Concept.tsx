@@ -62,6 +62,47 @@ export default function Concept() {
             et les projets réalisés — un véritable portfolio.
           </p>
 
+          <h2 className="text-3xl font-bold text-gray-900 mb-6 mt-12">
+  Pourquoi L&apos;Archipel Créatif ?
+</h2>
+
+<ul className="space-y-4 text-gray-700">
+  <li className="flex items-start gap-4">
+    <span className="text-blue-600 font-bold text-2xl">✓</span>
+    <span>
+      <strong>Développement Holistique :</strong> Nous cultivons la créativité, la confiance en soi, la collaboration et l&apos;innovation.
+    </span>
+  </li>
+
+  <li className="flex items-start gap-4">
+    <span className="text-blue-600 font-bold text-2xl">✓</span>
+    <span>
+      <strong>Diversité Créative :</strong> Six univers créatifs différents pour que chacun trouve sa passion.
+    </span>
+  </li>
+
+  <li className="flex items-start gap-4">
+    <span className="text-blue-600 font-bold text-2xl">✓</span>
+    <span>
+      <strong>Expérience Mémorable :</strong> Un voyage créatif qui marque une vie et inspire l&apos;avenir.
+    </span>
+  </li>
+
+  <li className="flex items-start gap-4">
+    <span className="text-blue-600 font-bold text-2xl">✓</span>
+    <span>
+      <strong>Mentors Experts :</strong> Guidés par des professionnels passionnés de leurs domaines respectifs.
+    </span>
+  </li>
+
+  <li className="flex items-start gap-4">
+    <span className="text-blue-600 font-bold text-2xl">✓</span>
+    <span>
+      <strong>Communauté Supportrice :</strong> Un environnement où chacun est valorisé et encouragé à s&apos;épanouir.
+    </span>
+  </li>
+</ul>
+
           <div className="mt-12 bg-blue-50 rounded-lg p-8 text-center">
             <h3 className="text-2xl font-bold text-gray-900 mb-4">Prêt à embarquer ?</h3>
             <p className="text-gray-700 mb-6">
