@@ -1,0 +1,25 @@
+# Node dependencies
+node_modules
+
+# Vite production build artifacts
+dist
+dist-ssr
+
+# Optional: Vite's development cache directory
+# The default path is often within node_modules, which is already ignored.
+# You can add .vite/ to gitignore if it is not already ignored.
+
+# Logs
+logs
+*.log
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# OS and Editor files
+.DS_Store
+.idea
+.vscode/
+*.local
