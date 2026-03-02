@@ -1,0 +1,67 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: archipel_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: directus
+      POSTGRES_PASSWORD: directus
+      POSTGRES_DB: directus
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks: [archipel]
+
+  cache:
+    image: redis:7-alpine
+    container_name: archipel_redis
+    restart: unless-stopped
+    networks: [archipel]
+
+  directus:
+    image: directus/directus:latest
+    container_name: archipel_directus
+    restart: unless-stopped
+    ports:
+      - "8055:8055"
+    depends_on:
+      - db
+      - cache
+    environment:
+      # Obligatoires
+      KEY: ${DIRECTUS_KEY}
+      SECRET: ${DIRECTUS_SECRET}
+
+      # Admin auto-créé au 1er boot
+      ADMIN_EMAIL: ${DIRECTUS_ADMIN_EMAIL}
+      ADMIN_PASSWORD: ${DIRECTUS_ADMIN_PASSWORD}
+
+      # DB
+      DB_CLIENT: pg
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_DATABASE: directus
+      DB_USER: directus
+      DB_PASSWORD: directus
+
+      # Cache (optionnel mais pratique)
+      CACHE_ENABLED: "true"
+      CACHE_STORE: redis
+      CACHE_REDIS: redis://cache:6379
+
+      # Uploads
+      STORAGE_LOCATIONS: local
+      STORAGE_LOCAL_ROOT: ./uploads
+
+      # URL publique (important si reverse-proxy)
+      PUBLIC_URL: ${DIRECTUS_PUBLIC_URL}
+
+    volumes:
+      - ./uploads:/directus/uploads
+      - ./extensions:/directus/extensions
+    networks: [archipel]
+
+volumes:
+  db_data:
+
+networks:
+  archipel:
