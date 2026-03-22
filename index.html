@@ -1,12 +1,684 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="fr">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>L'Archipel Créatif</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>L'Archipel Créatif — Voyage Artistique</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&family=Playfair+Display:ital,wght@0,700;1,700&family=Caveat:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --archipel-blue: #005f73;
+            --archipel-yellow: #e9d8a6;
+            --archipel-orange: #ee9b00;
+            --archipel-green: #2d6a4f;
+            --archipel-pink: #d62828;
+            --ocean-light: #e0f2f1;
+            --ocean-deep: #003d4d;
+        }
+
+        body { 
+            font-family: 'Montserrat', sans-serif; 
+            scroll-behavior: smooth; 
+            background-color: #f8f9fa;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3 { font-family: 'Playfair Display', serif; }
+        .handwritten { font-family: 'Caveat', cursive; }
+
+        /* Arrière-plan immersif avec grain */
+        .bg-texture {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            opacity: 0.05;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+
+        /* Effet de vagues animées */
+        .waves-container {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            overflow: hidden;
+            line-height: 0;
+            transform: rotate(180deg);
+        }
+
+        .waves-container svg {
+            position: relative;
+            display: block;
+            width: calc(154% + 1.3px);
+            height: 100px;
+        }
+
+        .waves-container .shape-fill { fill: #f8f9fa; }
+
+        /* Header Voyage */
+        .header-voyage {
+            background: linear-gradient(rgba(0, 95, 115, 0.7), rgba(0, 61, 77, 0.8)), 
+                        url('https://images.unsplash.com/photo-1513364776144-60967b0f800f?auto=format&fit=crop&q=80');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        .map-overlay {
+            position: absolute;
+            inset: 0;
+            background-image: radial-gradient(circle at 2px 2px, rgba(255,255,255,0.05) 1px, transparent 0);
+            background-size: 40px 40px;
+            pointer-events: none;
+        }
+
+        /* Island Cards */
+        .island-card {
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .island-card:hover {
+            transform: translateY(-15px) rotate(2deg);
+            border-radius: 50% 50% 50% 50% / 50% 50% 50% 50%;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.2);
+        }
+
+        .island-card::after {
+            content: '⚓';
+            position: absolute;
+            bottom: -10px;
+            right: -10px;
+            font-size: 4rem;
+            opacity: 0.1;
+            transform: rotate(-20deg);
+        }
+
+        /* Postcard Style for Concept */
+        .postcard {
+            background: white;
+            padding: 2rem;
+            border: 1px solid #e2e8f0;
+            box-shadow: 5px 5px 0px rgba(238, 155, 0, 0.2);
+            position: relative;
+        }
+
+        .postcard::before {
+            content: '';
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 40px;
+            height: 50px;
+            border: 2px dashed #cbd5e1;
+            background: #f8fafc;
+        }
+
+        /* Floating Icons Animation */
+        @keyframes float {
+            0% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(5deg); }
+            100% { transform: translateY(0px) rotate(0deg); }
+        }
+
+        .floating-icon {
+            position: absolute;
+            pointer-events: none;
+            opacity: 0.1;
+            animation: float 8s ease-in-out infinite;
+            z-index: 0;
+        }
+
+        /* Navigation Glassmorphism */
+        nav {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 10px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: var(--archipel-blue); border-radius: 5px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--archipel-orange); }
+
+        /* Pricing Badge */
+        .pricing-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .pricing-card:hover {
+            border-color: var(--archipel-orange);
+            transform: scale(1.03);
+            z-index: 10;
+        }
+
+        /* Form styling */
+        .form-container {
+            background-image: url("https://www.transparenttextures.com/patterns/pinstriped-suit.png");
+            border: 8px double #e2e8f0;
+        }
+
+        /* Section Dividers */
+        .section-divider {
+            height: 150px;
+            width: 100%;
+            background-repeat: no-repeat;
+            background-size: cover;
+        }
+
+        /* Custom Cursor for travel feel */
+        @media (min-width: 1024px) {
+            .travel-cursor { cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%23ee9b00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>'), auto; }
+        }
+    </style>
+</head>
+<body class="bg-stone-50 text-slate-800 travel-cursor" x-data="archipelApp()">
+    <div class="bg-texture"></div>
+
+    <!-- Navigation -->
+    <nav class="sticky top-0 z-50 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center group cursor-pointer">
+                <div class="relative">
+                    <img src="images/LOGO.jpg" alt="Logo" class="h-12 w-auto transition-transform group-hover:rotate-12" onerror="this.style.display='none'">
+                    <div x-show="!$el.previousElementSibling.complete" class="h-12 w-12 bg-orange-100 rounded-full flex items-center justify-center text-orange-600">
+                        <i class="fas fa-anchor"></i>
+                    </div>
+                </div>
+                <div class="ml-4">
+                    <div class="font-bold text-xl tracking-tighter text-cyan-900">L'ARCHIPEL CRÉATIF</div>
+                    <div class="text-[10px] uppercase tracking-[0.3em] text-orange-600 font-bold">Voyage Artistique</div>
+                </div>
+            </div>
+            <div class="hidden lg:flex space-x-6 text-[11px] font-bold uppercase tracking-widest">
+                <a href="#accueil" class="hover:text-orange-600 transition-colors">Accueil</a>
+                <a href="#concept" class="hover:text-orange-600 transition-colors">Concept</a>
+                <a href="#iles" class="hover:text-orange-600 transition-colors">Les Îles</a>
+                <a href="#galerie" class="hover:text-orange-600 transition-colors">Galerie</a>
+                <a href="#formules" class="hover:text-orange-600 transition-colors">Formules</a>
+                <a href="#inscription" class="bg-orange-600 text-white px-4 py-2 rounded-full hover:bg-orange-700 transition-all shadow-lg shadow-orange-200">Embarquer</a>
+            </div>
+            <div class="lg:hidden text-2xl text-cyan-900">
+                <i class="fas fa-bars"></i>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header -->
+    <header id="accueil" class="header-voyage relative h-[95vh] flex items-center justify-center text-center text-white overflow-hidden">
+        <div class="map-overlay"></div>
+        
+        <!-- Floating Elements -->
+        <i class="fas fa-paper-plane floating-icon text-4xl" style="top: 20%; left: 10%; animation-delay: 0s;"></i>
+        <i class="fas fa-anchor floating-icon text-5xl" style="top: 60%; right: 15%; animation-delay: 2s;"></i>
+        <i class="fas fa-compass floating-icon text-6xl" style="bottom: 20%; left: 20%; animation-delay: 4s;"></i>
+
+        <div class="relative z-10 px-4 max-w-4xl">
+            <span class="handwritten text-orange-400 text-3xl mb-4 block">Bienvenue à bord de...</span>
+            <h1 class="text-6xl md:text-8xl mb-6 font-bold leading-tight drop-shadow-2xl">L'Archipel Créatif</h1>
+            <p class="text-xl md:text-3xl font-light mb-8 tracking-wide opacity-90 italic">Une odyssée artistique en cinq escales mémorables</p>
+            
+            <div class="flex flex-col md:flex-row items-center justify-center gap-6 mt-12">
+                <a href="#inscription" class="group bg-orange-600 hover:bg-orange-700 px-10 py-5 rounded-full font-bold transition-all transform hover:scale-105 shadow-xl flex items-center">
+                    <span>RÉSERVER MON ESCALE</span>
+                    <i class="fas fa-arrow-right ml-3 group-hover:translate-x-2 transition-transform"></i>
+                </a>
+                <a href="#iles" class="bg-white/10 backdrop-blur-md border border-white/30 hover:bg-white/20 px-10 py-5 rounded-full font-bold transition-all">
+                    EXPLORER LA CARTE
+                </a>
+            </div>
+            
+            <div class="mt-16 flex items-center justify-center space-x-8 opacity-80">
+                <div class="text-center">
+                    <div class="text-2xl font-bold">06 Juil.</div>
+                    <div class="text-[10px] uppercase tracking-widest">Départ</div>
+                </div>
+                <div class="h-8 w-px bg-white/30"></div>
+                <div class="text-center">
+                    <div class="text-2xl font-bold">07 Août</div>
+                    <div class="text-[10px] uppercase tracking-widest">Arrivée</div>
+                </div>
+                <div class="h-8 w-px bg-white/30"></div>
+                <div class="text-center">
+                    <div class="text-2xl font-bold">5 - 15</div>
+                    <div class="text-[10px] uppercase tracking-widest">Âge</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Wave Transition -->
+        <div class="waves-container">
+            <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1200" preserveAspectRatio="none">
+                <path d="M321.39,584.85c58,48,114.16,50.13,172,50.13,107.54,0,149.32-40.51,256-40.51,105.17,0,131.21,41.4,231,41.4,105.5,0,131.21-41.4,231-41.4V0H0V584.85C0,584.85,263.39,536.85,321.39,584.85Z" class="shape-fill"></path>
+            </svg>
+        </div>
+    </header>
+
+    <!-- Concept -->
+    <section id="concept" class="py-32 max-w-6xl mx-auto px-4 relative">
+        <div class="text-center mb-20">
+            <h2 class="text-5xl mb-6">Le Manifeste du Voyageur</h2>
+            <div class="h-1 w-24 bg-orange-500 mx-auto mb-6"></div>
+            <p class="italic text-xl text-gray-500 max-w-2xl mx-auto">"L'art ne reproduit pas le visible, il rend visible." — Une aventure au cœur de la création.</p>
+        </div>
+
+        <div class="grid md:grid-cols-3 gap-10">
+            <div class="postcard group hover:-rotate-1 transition-transform">
+                <div class="text-blue-600 text-4xl mb-6"><i class="fas fa-eye"></i></div>
+                <h3 class="text-2xl mb-4 text-blue-900">Vision Pédagogique</h3>
+                <p class="text-gray-600 leading-relaxed">Développer la sensibilité artistique et stimuler la motricité fine par l'immersion totale dans un univers thématique hebdomadaire.</p>
+                <div class="mt-6 handwritten text-blue-400 text-xl">L'œil s'éveille...</div>
+            </div>
+
+            <div class="postcard group hover:rotate-1 transition-transform" style="box-shadow: 5px 5px 0px rgba(0, 95, 115, 0.2);">
+                <div class="text-orange-500 text-4xl mb-6"><i class="fas fa-map-signs"></i></div>
+                <h3 class="text-2xl mb-4 text-orange-600">L'Approche par Niveaux</h3>
+                <p class="text-gray-600 leading-relaxed">Des groupes adaptés : Éveil (5-7 ans), Intermédiaire (8-11 ans) et Avancé (12-15 ans) pour une progression sur mesure.</p>
+                <div class="mt-6 handwritten text-orange-400 text-xl">Chacun son rythme.</div>
+            </div>
+
+            <div class="postcard group hover:-rotate-1 transition-transform" style="box-shadow: 5px 5px 0px rgba(45, 106, 79, 0.2);">
+                <div class="text-yellow-600 text-4xl mb-6"><i class="fas fa-passport"></i></div>
+                <h3 class="text-2xl mb-4 text-yellow-700">L'Expérience Immersive</h3>
+                <p class="text-gray-600 leading-relaxed">Chaque enfant possède son Passeport Créatif, tamponné à chaque escale réussie sur une île de l'archipel.</p>
+                <div class="mt-6 handwritten text-yellow-500 text-xl">Prêt pour l'embarquement ?</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Islands -->
+    <section id="iles" class="py-32 bg-cyan-900 text-white relative overflow-hidden">
+        <!-- Decoration -->
+        <div class="absolute top-0 left-0 w-full h-24 bg-gradient-to-b from-stone-50 to-transparent opacity-10"></div>
+        
+        <div class="max-w-7xl mx-auto px-4 relative z-10">
+            <div class="text-center mb-20">
+                <h2 class="text-5xl mb-4 text-white">La Carte de l'Archipel</h2>
+                <p class="text-orange-400 font-bold tracking-widest uppercase text-sm">Cinq semaines, cinq destinations</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-8">
+                <!-- Île 1 -->
+                <div class="island-card p-8 bg-blue-600 text-white group">
+                    <div class="mb-6 flex justify-between items-start">
+                        <span class="bg-white/20 px-3 py-1 rounded-full text-[10px] font-bold uppercase">Semaine 1</span>
+                        <i class="fas fa-pen-nib text-2xl opacity-50 group-hover:opacity-100 transition-opacity"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4 italic">L'Île du Trait</h3>
+                    <p class="text-sm mb-6 opacity-90 leading-relaxed">L'origine de tout voyage : le dessin, la perspective et les bases du croquis.</p>
+                    <div class="mt-auto pt-4 border-t border-white/20 text-xs font-bold">6 — 10 JUILLET</div>
+                </div>
+
+                <!-- Île 2 -->
+                <div class="island-card p-8 bg-yellow-500 text-slate-900 group">
+                    <div class="mb-6 flex justify-between items-start">
+                        <span class="bg-black/10 px-3 py-1 rounded-full text-[10px] font-bold uppercase">Semaine 2</span>
+                        <i class="fas fa-palette text-2xl opacity-50 group-hover:opacity-100 transition-opacity"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4 italic">L'Île des Couleurs</h3>
+                    <p class="text-sm mb-6 opacity-90 leading-relaxed">Explosion chromatique : peinture acrylique et théorie des mélanges.</p>
+                    <div class="mt-auto pt-4 border-t border-black/10 text-xs font-bold">13 — 17 JUILLET</div>
+                </div>
+
+                <!-- Île 3 -->
+                <div class="island-card p-8 bg-orange-500 text-white group">
+                    <div class="mb-6 flex justify-between items-start">
+                        <span class="bg-white/20 px-3 py-1 rounded-full text-[10px] font-bold uppercase">Semaine 3</span>
+                        <i class="fas fa-hands text-2xl opacity-50 group-hover:opacity-100 transition-opacity"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4 italic">L'Île des Formes</h3>
+                    <p class="text-sm mb-6 opacity-90 leading-relaxed">Donner vie à la terre : céramique, modelage et volume spatial.</p>
+                    <div class="mt-auto pt-4 border-t border-white/20 text-xs font-bold">20 — 24 JUILLET</div>
+                </div>
+
+                <!-- Île 4 -->
+                <div class="island-card p-8 bg-green-700 text-white group">
+                    <div class="mb-6 flex justify-between items-start">
+                        <span class="bg-white/20 px-3 py-1 rounded-full text-[10px] font-bold uppercase">Semaine 4</span>
+                        <i class="fas fa-monument text-2xl opacity-50 group-hover:opacity-100 transition-opacity"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4 italic">L'île des Bâtisseurs</h3>
+                    <p class="text-sm mb-6 opacity-90 leading-relaxed">Architecture miniature : maquettes, papier et carton recyclé.</p>
+                    <div class="mt-auto pt-4 border-t border-white/20 text-xs font-bold">27 — 31 JUILLET</div>
+                </div>
+
+                <!-- Île 5 -->
+                <div class="island-card p-8 bg-red-600 text-white group">
+                    <div class="mb-6 flex justify-between items-start">
+                        <span class="bg-white/20 px-3 py-1 rounded-full text-[10px] font-bold uppercase">Semaine 5</span>
+                        <i class="fas fa-scroll text-2xl opacity-50 group-hover:opacity-100 transition-opacity"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4 italic">L'île des Fibres</h3>
+                    <p class="text-sm mb-6 opacity-90 leading-relaxed">Le fil de l'histoire : tissage, textures et art textile traditionnel.</p>
+                    <div class="mt-auto pt-4 border-t border-white/20 text-xs font-bold">3 — 7 AOÛT</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Bottom Waves -->
+        <div class="absolute bottom-0 left-0 w-full h-24 bg-gradient-to-t from-stone-50 to-transparent opacity-100"></div>
+    </section>
+
+    <!-- Galerie -->
+    <section id="galerie" class="py-32 px-4 bg-stone-50">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex flex-col md:flex-row items-end justify-between mb-16 gap-6">
+                <div class="max-w-xl">
+                    <h2 class="text-5xl mb-4">Souvenirs d'Expéditions</h2>
+                    <p class="text-gray-500 italic text-lg">Un aperçu des chefs-d'œuvre réalisés par nos jeunes explorateurs lors des précédentes escales.</p>
+                </div>
+                <div class="handwritten text-3xl text-orange-600 -rotate-6">Moments magiques !</div>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <template x-for="i in [7812, 7845, 7871, 8049, 8088, 8122, 8242, 8256, 8363, 8394, 8258, 8222]">
+                    <div class="relative overflow-hidden rounded-xl aspect-square group cursor-zoom-in shadow-lg">
+                        <img :src="'images/IMG_' + i + '.jpeg'" alt="Atelier" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                        <div class="absolute inset-0 bg-cyan-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                            <i class="fas fa-search-plus text-white text-3xl"></i>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+    </section>
+
+    <!-- Formules -->
+    <section id="formules" class="py-32 bg-white px-4 relative">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-20">
+                <h2 class="text-5xl mb-4">Choisir votre Expédition</h2>
+                <p class="text-gray-500">Des formules adaptées à chaque soif de découverte.</p>
+            </div>
+
+            <div class="grid md:grid-cols-4 gap-8">
+                <template x-for="f in pricingFormulas">
+                    <div class="pricing-card p-8 rounded-2xl flex flex-col text-center cursor-pointer group shadow-sm" 
+                         @click="selectedFormula = f.id; window.location.href='#inscription'">
+                        <div class="w-16 h-16 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-orange-600 group-hover:text-white transition-colors">
+                            <i class="fas fa-compass text-2xl"></i>
+                        </div>
+                        <h3 class="font-bold text-xl mb-4 text-cyan-900" x-text="f.name"></h3>
+                        <div class="text-3xl font-black text-orange-600 mb-2" x-text="f.price"></div>
+                        <div class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-6">FCFA / SESSION</div>
+                        <p class="text-sm text-gray-500 mb-8 leading-relaxed" x-text="f.desc"></p>
+                        <button class="mt-auto border-2 border-cyan-900 text-cyan-900 font-bold py-3 rounded-xl group-hover:bg-cyan-900 group-hover:text-white transition-all">SÉLECTIONNER</button>
+                    </div>
+                </template>
+            </div>
+        </div>
+    </section>
+
+    <!-- Inscription -->
+    <section id="inscription" class="py-32 bg-stone-100 px-4 relative overflow-hidden">
+        <!-- Decoration -->
+        <i class="fas fa-stamp absolute -top-10 -right-10 text-[15rem] text-stone-200 rotate-12"></i>
+        
+        <div class="max-w-4xl mx-auto bg-white p-8 md:p-16 shadow-2xl rounded-3xl form-container relative z-10">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-bold mb-4">Formulaire d'Embarquement</h2>
+                <p class="handwritten text-2xl text-orange-500">Remplissez votre carnet de route...</p>
+            </div>
+
+            <form @submit.prevent="submitForm()" x-show="!submitted" class="space-y-8">
+                <!-- Enfant 1 -->
+                <div class="bg-stone-50 p-6 rounded-2xl border border-stone-200">
+                    <h3 class="font-bold text-cyan-900 mb-6 flex items-center">
+                        <span class="w-8 h-8 bg-cyan-900 text-white rounded-full flex items-center justify-center mr-3 text-xs">01</span>
+                        Informations de l'Explorateur
+                    </h3>
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold uppercase tracking-widest text-gray-400">Nom complet</label>
+                            <input type="text" name="Nom_Enfant" class="w-full bg-white border-2 border-stone-200 p-4 rounded-xl focus:border-orange-500 outline-none transition-all" placeholder="Nom de l'enfant" required>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold uppercase tracking-widest text-gray-400">Âge</label>
+                            <input type="number" name="Age" x-model="childAge" @input="updateLevel()" class="w-full bg-white border-2 border-stone-200 p-4 rounded-xl focus:border-orange-500 outline-none transition-all" required min="5" max="15">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold uppercase tracking-widest text-gray-400">Niveau (Auto)</label>
+                            <input type="text" name="Niveau" x-model="childLevel" class="w-full bg-stone-100 border-2 border-stone-200 p-4 rounded-xl text-cyan-900 font-bold" readonly>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold uppercase tracking-widest text-gray-400">Formule Choisie</label>
+                            <select name="Formule" x-model="selectedFormula" @change="updateFormula()" class="w-full bg-white border-2 border-stone-200 p-4 rounded-xl focus:border-orange-500 outline-none transition-all">
+                                <option value="1">Explorateur (3 îles)</option>
+                                <option value="2">Grand Voyageur (4 îles)</option>
+                                <option value="3">Maître (5 îles)</option>
+                                <option value="4">Familiale (4 enfants)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sélection îles -->
+                <div class="mb-8" x-show="selectedFormula !== '4'">
+                    <h3 class="font-bold text-cyan-900 mb-6 flex items-center">
+                        <span class="w-8 h-8 bg-cyan-900 text-white rounded-full flex items-center justify-center mr-3 text-xs">02</span>
+                        Choix des Escales (<span x-text="selectedIslands.length"></span> / <span x-text="maxIslands"></span>)
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <template x-for="ile in allIslands">
+                            <label class="relative flex flex-col p-4 border-2 rounded-2xl cursor-pointer transition-all group" 
+                                   :class="selectedIslands.includes(ile.name) ? 'border-orange-500 bg-orange-50' : 'border-stone-100 hover:border-stone-300'">
+                                <input type="checkbox" name="Iles_Choisies" :value="ile.name" x-model="selectedIslands" 
+                                       :disabled="!selectedIslands.includes(ile.name) && selectedIslands.length >= maxIslands"
+                                       class="absolute top-4 right-4 h-5 w-5 text-orange-600 rounded border-stone-300">
+                                <span class="font-bold text-sm mb-1" x-text="ile.name.split(' — ')[0]"></span>
+                                <span class="text-[10px] text-gray-500" x-text="ile.name.split(' — ')[1]"></span>
+                            </label>
+                        </template>
+                    </div>
+                </div>
+
+                <!-- Formule Familiale -->
+                <div x-show="selectedFormula === '4'" class="p-8 bg-blue-50 border-2 border-blue-100 rounded-2xl space-y-8">
+                    <h3 class="font-bold text-blue-900 text-xl">L'Équipage Familial (4 enfants)</h3>
+                    <template x-for="i in [2, 3, 4]">
+                        <div class="pt-6 border-t border-blue-200">
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <input type="text" :name="'Nom_Enfant_' + i" :placeholder="'Nom de l\'enfant ' + i" class="w-full bg-white border-2 border-blue-100 p-3 rounded-xl outline-none focus:border-blue-400">
+                                <input type="number" :name="'Age_Enfant_' + i" placeholder="Âge" class="w-full bg-white border-2 border-blue-100 p-3 rounded-xl outline-none focus:border-blue-400" min="5" max="15">
+                            </div>
+                        </div>
+                    </template>
+                </div>
+
+                <!-- Infos parent -->
+                <div class="bg-stone-50 p-6 rounded-2xl border border-stone-200">
+                    <h3 class="font-bold text-cyan-900 mb-6 flex items-center">
+                        <span class="w-8 h-8 bg-cyan-900 text-white rounded-full flex items-center justify-center mr-3 text-xs">03</span>
+                        Coordonnées du Responsable
+                    </h3>
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <input type="text" name="Nom_Parent" placeholder="Votre nom complet" class="w-full bg-white border-2 border-stone-200 p-4 rounded-xl focus:border-orange-500 outline-none" required>
+                        <input type="tel" name="Contact" placeholder="Contact WhatsApp (ex: +237...)" class="w-full bg-white border-2 border-stone-200 p-4 rounded-xl focus:border-orange-500 outline-none" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full bg-cyan-900 text-white font-bold py-5 rounded-2xl hover:bg-cyan-800 transition-all transform hover:scale-[1.02] shadow-xl text-xl flex items-center justify-center group">
+                    <i class="fas fa-anchor mr-3 group-hover:rotate-12 transition-transform"></i>
+                    VALIDER MON INSCRIPTION
+                </button>
+            </form>
+
+            <div x-show="submitted" class="text-center py-20 animate-bounce">
+                <div class="text-8xl mb-8">🚢</div>
+                <h3 class="text-3xl font-bold text-cyan-900 mb-4">Bienvenue à Bord !</h3>
+                <p class="text-gray-600 text-lg">Votre demande d'embarquement a été transmise à la capitainerie.<br>Nous vous contacterons par WhatsApp sous 24h.</p>
+                <button @click="submitted = false" class="mt-12 text-orange-600 font-bold underline">Faire une autre inscription</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Passeport Section -->
+    <section class="py-32 max-w-4xl mx-auto px-4 text-center relative">
+        <div class="absolute -left-20 top-1/2 -translate-y-1/2 opacity-5 hidden lg:block">
+            <i class="fas fa-globe-africa text-[20rem]"></i>
+        </div>
+        
+        <h2 class="text-4xl mb-10 italic">Le Passeport Créatif</h2>
+        <div class="bg-white p-12 border-8 border-double border-stone-200 rounded-[2rem] shadow-2xl relative overflow-hidden group">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-orange-500/10 rounded-bl-full"></div>
+            <p class="mb-10 text-xl leading-relaxed text-gray-600 relative z-10">Plus qu'une simple carte, le <strong>Passeport Créatif</strong> est le témoin de votre progression. Valable 3 ans, il recueille vos badges d'escales et vous ouvre les portes des futures expéditions.</p>
+            
+            <div class="flex justify-center space-x-8">
+                <div class="w-20 h-20 bg-yellow-500 rounded-full flex items-center justify-center text-white text-3xl shadow-lg transform group-hover:scale-110 transition-transform rotate-12">★</div>
+                <div class="w-20 h-20 bg-blue-600 rounded-full flex items-center justify-center text-white text-3xl shadow-lg transform group-hover:scale-110 transition-transform -rotate-12 delay-75">⚓</div>
+                <div class="w-20 h-20 bg-orange-500 rounded-full flex items-center justify-center text-white text-3xl shadow-lg transform group-hover:scale-110 transition-transform rotate-6 delay-150">🎨</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Equipe -->
+    <section id="equipe" class="py-32 bg-slate-900 text-white px-4 relative overflow-hidden">
+        <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-20"></div>
+        <div class="max-w-6xl mx-auto relative z-10">
+            <div class="text-center mb-20">
+                <h2 class="text-5xl mb-4">L'Équipage</h2>
+                <p class="text-orange-400 tracking-[0.5em] uppercase text-xs font-bold">À la barre de l'aventure</p>
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-12">
+                <template x-for="member in [
+                    {name: 'Lydie Frédérique EWANE NGOLE', role: 'Direction'},
+                    {name: 'Line Gabrielle POUKA MBONG', role: 'Secrétariat & Gestion'},
+                    {name: 'Anaïs Christiane FOCHIVE', role: 'Communication Digitale'},
+                    {name: 'Ruth ASSIMIZELLE', role: 'Partenariats'},
+                    {name: 'Luce MBADI TOUM', role: 'Planification'},
+                    {name: 'Claude-Pascale EWANE NGOLE', role: 'Finance & Comptabilité'}
+                ]">
+                    <div class="group border-l-2 border-orange-500/30 pl-6 hover:border-orange-500 transition-colors">
+                        <p class="text-orange-400 text-[10px] uppercase tracking-widest mb-2 font-bold" x-text="member.role"></p>
+                        <h4 class="font-bold text-xl group-hover:text-orange-400 transition-colors" x-text="member.name"></h4>
+                    </div>
+                </template>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer id="contact" class="bg-stone-50 py-32 px-4 border-t border-stone-200">
+        <div class="max-w-6xl mx-auto grid md:grid-cols-2 gap-20">
+            <div>
+                <h2 class="text-4xl font-bold mb-8 text-cyan-900">Contactez la Capitainerie</h2>
+                <div class="space-y-6 text-lg">
+                    <div class="flex items-center group">
+                        <div class="w-12 h-12 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center mr-4 group-hover:bg-orange-600 group-hover:text-white transition-colors">
+                            <i class="fab fa-whatsapp"></i>
+                        </div>
+                        <span class="font-bold">+237 691 385 227</span>
+                    </div>
+                </div>
+
+                <h3 class="text-xl font-bold mt-12 mb-6 uppercase tracking-widest text-gray-400">Suivez notre sillage</h3>
+                <div class="flex gap-4">
+                    <a href="https://www.facebook.com/l_archipel_creatif" class="w-14 h-14 bg-white shadow-md rounded-2xl flex items-center justify-center text-blue-600 hover:-translate-y-2 transition-transform">
+                        <i class="fab fa-facebook-f text-xl"></i>
+                    </a>
+                    <a href="https://www.instagram.com/l_archipel_creatif" class="w-14 h-14 bg-white shadow-md rounded-2xl flex items-center justify-center text-pink-600 hover:-translate-y-2 transition-transform">
+                        <i class="fab fa-instagram text-xl"></i>
+                    </a>
+                    <a href="https://www.tiktok.com/@l_archipel_creatif" class="w-14 h-14 bg-white shadow-md rounded-2xl flex items-center justify-center text-black hover:-translate-y-2 transition-transform">
+                        <i class="fab fa-tiktok text-xl"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div id="faq">
+                <h2 class="text-4xl font-bold mb-8 text-cyan-900">Questions Fréquentes</h2>
+                <div class="space-y-4">
+                    <details class="group bg-white rounded-2xl p-4 shadow-sm border border-stone-100">
+                        <summary class="font-bold cursor-pointer list-none flex justify-between items-center">
+                            <span>Le matériel est-il fourni ?</span>
+                            <i class="fas fa-chevron-down group-open:rotate-180 transition-transform"></i>
+                        </summary>
+                        <p class="text-gray-500 mt-4 leading-relaxed">Absolument. Tout le nécessaire artistique (pinceaux, argile, toiles, etc.) est inclus dans chaque formule d'escale.</p>
+                    </details>
+                    <details class="group bg-white rounded-2xl p-4 shadow-sm border border-stone-100">
+                        <summary class="font-bold cursor-pointer list-none flex justify-between items-center">
+                            <span>Peut-on payer en plusieurs fois ?</span>
+                            <i class="fas fa-chevron-down group-open:rotate-180 transition-transform"></i>
+                        </summary>
+                        <p class="text-gray-500 mt-4 leading-relaxed">Oui, nous proposons des facilités de paiement. Veuillez contacter notre gestion administrative via WhatsApp pour les détails.</p>
+                    </details>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mt-32">
+            <div class="h-px w-24 bg-stone-200 mx-auto mb-8"></div>
+            <p class="text-xs text-gray-400 uppercase tracking-[0.5em]">
+                ©️ 2026 L'Archipel Créatif — Voyage Artistique Immersif
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        function archipelApp() {
+            return {
+                childAge: '',
+                childLevel: 'Saisissez l\'âge',
+                selectedFormula: '1',
+                selectedIslands: [],
+                submitted: false,
+                allIslands: [
+                    { id: 1, name: "Île Bleue — L'Île du Trait" },
+                    { id: 2, name: "Île Jaune — L'Île des Couleurs" },
+                    { id: 3, name: "Île Orange — L'Île des Formes" },
+                    { id: 4, name: "Île Verte — L'île des Bâtisseurs" },
+                    { id: 5, name: "Île Rose — L'île des Fibres" }
+                ],
+                pricingFormulas: [
+                    { id: '1', name: 'Explorateur Essentiel', price: '30 000', desc: '3 îles au choix pour découvrir les bases.' },
+                    { id: '2', name: 'Grand Voyageur', price: '40 000', desc: '4 îles au choix pour approfondir sa pratique.' },
+                    { id: '3', name: 'Maître de l\'Archipel', price: '50 000', desc: 'Les 5 îles pour une aventure artistique totale.' },
+                    { id: '4', name: 'Formule Familiale', price: '180 000', desc: 'Offre spéciale pour 4 enfants - Toutes les îles incluses.' }
+                ],
+                updateLevel() {
+                    if (this.childAge >= 5 && this.childAge <= 7) this.childLevel = 'Éveil';
+                    else if (this.childAge >= 8 && this.childAge <= 11) this.childLevel = 'Intermédiaire';
+                    else if (this.childAge >= 12 && this.childAge <= 15) this.childLevel = 'Avancé';
+                    else this.childLevel = 'Hors tranche d\'âge';
+                },
+                updateFormula() {
+                    if (this.selectedFormula === '4') {
+                        this.selectedIslands = [];
+                    }
+                },
+                get maxIslands() {
+                    if (this.selectedFormula === '1') return 3;
+                    if (this.selectedFormula === '2') return 4;
+                    return 5;
+                },
+                submitForm() {
+                    const form = document.querySelector('form');
+                    const formData = new FormData(form);
+                    fetch('https://api.sheetmonkey.io/form/f11ErV6hLLZemGhcYzqPhC', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    this.submitted = true;
+                    window.scrollTo({
+                        top: document.getElementById('inscription').offsetTop,
+                        behavior: 'smooth'
+                    });
+                }
+            }
+        }
+    </script>
+</body>
 </html>
